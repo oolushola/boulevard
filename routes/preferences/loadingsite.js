@@ -2,15 +2,18 @@ const express = require('express')
 const { body } = require('express-validator')
 const loadingSiteController = require('../../controllers/loading-site')
 const LoadingSite = require('../../models/preferences/loadingsite')
+const verifyToken = require('../../utils/middleware/verifyToken')
 
 const router = express.Router()
 
 router.get(
     '/loading-sites',
+    verifyToken,
     loadingSiteController.getLoadingSites
 )
 router.post(
     '/loading-site',
+    verifyToken,
     [
         body('loadingSiteCode', 'loading site code is required.').isLength({ min: 3, max: 5 }).isString(),
         body('loadingSite').trim().isString()
@@ -26,9 +29,10 @@ router.post(
     ],
     loadingSiteController.createLoadingSite
 )
-router.get('/loading-site/:loadingSiteId', loadingSiteController.getLoadingSite)
+router.get('/loading-site/:loadingSiteId', verifyToken, loadingSiteController.getLoadingSite)
 router.put(
     '/loading-site/:loadingSiteId',
+    verifyToken,
     [
         body('loadingSiteCode', 'loading site code is required.').isLength({ min: 3, max: 5 }).isString(),
         body('loadingSite').trim().isString(),
