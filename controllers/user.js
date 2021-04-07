@@ -72,7 +72,9 @@ class User {
         .then(userInfo => {
             const token = jwt.sign({ 
                 userId: userInfo._id, 
-                fullName: `${userInfo.firstName} ${userInfo.lastName}` }, 
+                fullName: `${userInfo.firstName} ${userInfo.lastName}`,
+                userType: userInfo.userRole
+                }, 
                 process.env.TOKEN_SECRET, 
                 { expiresIn: 86400000 })
             responses.successResponse(
@@ -105,7 +107,7 @@ class User {
             responses.errorResponse(next, 422, 'validation error', errors.array())
         }
         let userInfo;
-        UserModel.findOne({ email: email })
+        UserModel.findOne({ email: email }).select('-__v -password')
             .then(userDoc => {
                 if(!userDoc) {
                     responses.errorResponse(next, 404, 'user not found')
@@ -118,7 +120,8 @@ class User {
                         }
                         const token = jwt.sign({ 
                             userId: userInfo._id, 
-                            fullName: `${userInfo.firstName} ${userInfo.lastName}` 
+                            fullName: `${userInfo.firstName} ${userInfo.lastName}` ,
+                            userType: userInfo.userRole
                         }, 
                         process.env.TOKEN_SECRET, 
                         { expiresIn: 86400000 })
@@ -134,8 +137,37 @@ class User {
 
 
     static changeUserStatus(req, res, next) {
-        // first check if the user is a superAdmin
-        // if the user type isnot a super admin, they shouldnt be able to change status
+       const userId = req.query.user
+       const errors = validationResult(req)
+       if(!errors.isEmpty()) {
+           responses.errorResponse(next, 422, 'validation failed', errors.array())
+       }
+       let userInfo;
+       let previousUserRole;
+       UserModel
+        .findOne({ _id: userId, accountStatus: true })
+        .select('-__v -password -createdAt -updatedAt -photo')
+        .then(userDoc => {
+            if(!userDoc) {
+                responses.errorResponse(next, 404, 'user not found')
+            }
+            userInfo = userDoc
+            userInfo.userRole = req.body.userRole
+            previousUserRole = userDoc.userRole
+            console.log(previousUserRole)
+            return userInfo.save()
+        })
+        .then(result => {
+            responses.successResponse(
+                res, 
+                200, 
+                `${userInfo.lastName} status has been changed!`, 
+                result
+            )
+        })
+        .catch(err => {
+            responses.serverErrorResponse(err, 500, next)
+        })
     }
 
 }

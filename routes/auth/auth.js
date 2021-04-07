@@ -5,7 +5,7 @@ const { uploadPhoto, User } = require('../../controllers/user')
 const UserModel = require('../../models/user')
 const router = express.Router()
 const verifyToken = require('../../utils/middleware/verifyToken')
-const userAccess = require('../../utils/middleware/user-access')
+const privileges = require('../../utils/middleware/user-access')
 router.post(
     '/signup',
     [
@@ -45,9 +45,12 @@ router.post(
     User.login
 )
 router.patch(
-    '/update-user-status', 
+    '/update-status', 
     verifyToken,
-    userAccess,
+    privileges.superAdminAccess,
+    [
+        body('userRole').trim().isString()
+    ],
     User.changeUserStatus
 )
 module.exports = router
