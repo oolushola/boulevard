@@ -131,6 +131,13 @@ class User {
             })
 
     }
+
+
+    static changeUserStatus(req, res, next) {
+        // first check if the user is a superAdmin
+        // if the user type isnot a super admin, they shouldnt be able to change status
+    }
+
 }
 
 module.exports = {

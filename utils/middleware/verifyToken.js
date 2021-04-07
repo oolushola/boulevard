@@ -13,6 +13,7 @@ const verifyToken = (req, res, next) => {
         verifiedToken = jwt.verify(extractedToken, process.env.TOKEN_SECRET)
         req.userId = verifiedToken.userId
         req.fullName = verifiedToken.fullName
+        req.userType = verifiedToken.userType
         next()
     }
     catch(err) {
