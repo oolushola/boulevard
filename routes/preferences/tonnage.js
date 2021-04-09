@@ -5,6 +5,7 @@ const verifyToken = require('../../utils/middleware/verifyToken')
 const userAccess = require('../../utils/middleware/user-access')
 const tonnageController = require('../../controllers/tonnage')
 const TonnageModel = require('../../models/preferences/tonnage')
+const tonnage = require('../../models/preferences/tonnage')
 
 router.get(
   '/tonnages',
@@ -36,6 +37,28 @@ router.post(
 router.get(
   '/tonnage/:tonnageId',
   tonnageController.getTonnage
+)
+
+router.put(
+  '/tonnage/:tonnageId',
+  verifyToken,
+  userAccess.admin,
+  [
+    body('tonnage')
+    .trim()
+    .isNumeric()
+    .notEmpty()
+    .custom((value, { req }) => {
+      return TonnageModel
+        .findOne({_id: { $ne: req.params.tonnageId }, tonnage: value })
+        .then(doMatch => {
+          if(doMatch) {
+            return Promise.reject(`${value}T already exists`)
+          }
+        })
+    })
+  ],
+  tonnageController.updateTonnage
 )
 
 module.exports = router
