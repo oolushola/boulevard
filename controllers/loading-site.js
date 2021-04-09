@@ -80,9 +80,9 @@ class LoadingSites {
                         loadingSiteDesc: loadingSiteDesc
                      }
                 })
-            })
-            .then(result => {
-                responses.successResponse(res, 200, 'record updated successfully', result)
+                .then(result => {
+                    responses.successResponse(res, 200, 'record updated successfully', result)
+                })
             })
             .catch(err => {
                 responses.serverErrorResponse(err, 500, next)
