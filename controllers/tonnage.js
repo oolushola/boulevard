@@ -1,10 +1,11 @@
 const TonnageModel = require('../models/preferences/tonnage')
 const responses = require('../utils/response')
+const { validationResult } = require('express-validator')
 
 class Tonnages {
   static getTonnages(req, res, next) {
-    const currentPage = req.query.currentPage || 1
-    const perPage = req.query.perPage || 10
+    const currentPage = Number(req.query.currentPage) || 1
+    const perPage = Number(req.query.perPage) || 10
     TonnageModel
       .find({})
       .select('-__v -updatedAt -createdAt')
@@ -19,6 +20,25 @@ class Tonnages {
     .catch(err => {
       responses.serverErrorResponse(err, 500, next)
     })
+  }
+
+  static addTonnage(req, res, next) {
+    const errors = validationResult(req)
+    if(!errors.isEmpty()) {
+      return responses.errorResponse(res, 422, 'validation failed', errors.array())
+    }
+    const tonnage = req.body.tonnage
+    const newTonnage = new TonnageModel({
+      tonnage: tonnage
+    })
+    return newTonnage
+      .save()
+      .then(tonnage => {
+        responses.successResponse(res, 201, 'tonnage added successfully', tonnage)
+      })
+      .catch(err => {
+        responses.serverErrorResponse(err, 500, next)
+      })
   }
 }
 
