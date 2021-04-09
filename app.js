@@ -7,6 +7,7 @@ const path = require('path')
 const loadingSiteRoutes = require('./routes/preferences/loadingsite')
 const authRoutes = require('./routes/auth/auth')
 const productRoutes = require('./routes/preferences/product')
+const truckTypeRoutes = require('./routes/preferences/trucktype')
 
 const PORT = process.env.PORT || 8080
 const CONNECTION_URI = `${process.env.CONNECTION_STRING}`
@@ -23,9 +24,8 @@ app.use((req, res, next) => {
     next()
 })
 
-app.use(BASE_URL, loadingSiteRoutes)
 app.use(BASE_URL, authRoutes)
-app.use(BASE_URL, productRoutes)
+app.use(BASE_URL, loadingSiteRoutes, productRoutes, truckTypeRoutes)
 
 app.use((error, req, res, next) => {
     const status = error.statusCode || 500
