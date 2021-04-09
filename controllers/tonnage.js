@@ -56,6 +56,30 @@ class Tonnages {
         responses.errorResponse(err, 500, next)
       })
   }
+
+  static updateTonnage(req, res, next) {
+    const errors = validationResult(req)
+    if(!errors.isEmpty()) {
+      return responses.errorResponse(res, 422, 'validation failed', errors.array())
+    }
+    const tonnageId = req.params.tonnageId
+    const tonnage = req.body.tonnage
+    TonnageModel
+      .findById(tonnageId)
+      .then(matchedTonnage => {
+        if(!matchedTonnage) {
+          return responses.errorResponse(res, 404, 'resource not found')
+        }
+        matchedTonnage.tonnage = tonnage
+        return matchedTonnage.save()
+      })
+      .then(result => {
+        responses.successResponse(res, 200, 'tonnage updated', result)
+      })
+      .catch(err => {
+        responses.serverErrorResponse(err, 500, next)
+      })
+  }
 }
 
 module.exports = Tonnages
