@@ -83,16 +83,16 @@ class User {
                 'user account created successfully.', 
                 { token, userInfo }
             )
-            transporter.sendMail({
-                from: process.env.SENDER,
-                to: userInfo.email,
-                subject: process.env.SIGNUP_SUBJECT,
-                bcc: process.env.ADMIN_ACCOUNT,
-                html: `
-                    <h1>Hurray! ${ userInfo.firstName }, </h1>
-                    <p>Waiting on content from the content  team</p>
-                `
-            })
+            // transporter.sendMail({
+            //     from: process.env.SENDER,
+            //     to: userInfo.email,
+            //     subject: process.env.SIGNUP_SUBJECT,
+            //     bcc: process.env.ADMIN_ACCOUNT,
+            //     html: `
+            //         <h1>Hurray! ${ userInfo.firstName }, </h1>
+            //         <p>Waiting on content from the content  team</p>
+            //     `
+            // })
         })
         .catch(err => {
             responses.serverErrorResponse(err, 500, next)
@@ -107,25 +107,32 @@ class User {
             responses.errorResponse(next, 422, 'validation error', errors.array())
         }
         let userInfo;
-        UserModel.findOne({ email: email }).select('-__v -password')
+        UserModel.findOne({ email: email }).select('-__v')
             .then(userDoc => {
                 if(!userDoc) {
                     responses.errorResponse(next, 404, 'user not found')
                 }
-                userInfo = userDoc
+                // userInfo = userDoc
                 return bcrypt.compare(password, userDoc.password)
                     .then(doMatched => {
                         if(!doMatched) {
                             responses.errorResponse(next, 404, 'email and password incorrect')
                         }
                         const token = jwt.sign({ 
-                            userId: userInfo._id, 
-                            fullName: `${userInfo.firstName} ${userInfo.lastName}` ,
-                            userType: userInfo.userRole
+                            userId: userDoc._id, 
+                            fullName: `${userDoc.firstName} ${userDoc.lastName}`,
+                            userType: userDoc.userRole
                         }, 
                         process.env.TOKEN_SECRET, 
                         { expiresIn: 86400000 })
-                        responses.successResponse(res, 200, { token, userInfo })
+                        const data = {
+                            firstName: userDoc.firstName, 
+                            lastName: userDoc.lastName, 
+                            email: userDoc.email, 
+                            userRole: userDoc.userRole, 
+                            accountStatus: userDoc.userStatus
+                        }
+                        responses.successResponse(res, 200, { token, data })
                     })
 
             })

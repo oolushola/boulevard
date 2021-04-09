@@ -18,6 +18,16 @@ class Priviledges {
                     next(err)
                 }
             })
+    }
+
+    static admin(req, res, next) {
+        const userType = req.userType
+        if(userType === 'Super Admin' || userType == 'Admin' ) {
+            return next()
+        }
+        const error = new Error('Access denied')
+        error.statusCode = 403;
+        throw error
         
     }
 }

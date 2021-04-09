@@ -6,6 +6,7 @@ const path = require('path')
 
 const loadingSiteRoutes = require('./routes/preferences/loadingsite')
 const authRoutes = require('./routes/auth/auth')
+const productRoutes = require('./routes/preferences/product')
 
 const PORT = process.env.PORT || 8080
 const CONNECTION_URI = `${process.env.CONNECTION_STRING}`
@@ -24,6 +25,7 @@ app.use((req, res, next) => {
 
 app.use(BASE_URL, loadingSiteRoutes)
 app.use(BASE_URL, authRoutes)
+app.use(BASE_URL, productRoutes)
 
 app.use((error, req, res, next) => {
     const status = error.statusCode || 500
@@ -34,6 +36,13 @@ app.use((error, req, res, next) => {
         message: message
     })
     next()
+})
+
+app.use('*', (req, res, next) => {
+    res.status(404).json({
+        status: 404,
+        data: 'oops! seems lost? Go home!'
+    })
 })
 
 mongoose.connect(CONNECTION_URI, {

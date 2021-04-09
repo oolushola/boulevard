@@ -1,9 +1,9 @@
 class Responses{
-    static errorResponse(next, code, errorMessage, errors) {
-        const error = new Error(errorMessage)
-        error.statusCode = code
-        error.errorData = errors
-        throw next(error)
+    static errorResponse(res, code, errorMessage, errors) {
+        res.status(code).json({ 
+            errorMessage:errorMessage,  
+            errorLog: errors 
+        })
     }
 
     static successResponse(res, statusCode, message, data) {
