@@ -33,4 +33,9 @@ router.post(
   tonnageController.addTonnage
 )
 
+router.get(
+  '/tonnage/:tonnageId',
+  tonnageController.getTonnage
+)
+
 module.exports = router

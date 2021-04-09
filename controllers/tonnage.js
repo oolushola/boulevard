@@ -40,6 +40,22 @@ class Tonnages {
         responses.serverErrorResponse(err, 500, next)
       })
   }
+
+  static getTonnage(req, res, next) {
+    const tonnageId = req.params.tonnageId
+    TonnageModel
+      .findById(tonnageId)
+      .select('-__v -updatedAt -createdAt')
+      .then(tonnage => {
+        if(!tonnage) {
+          return responses.errorResponse(res, 404, 'resource not found')
+        }
+        responses.successResponse(res, 200, 'tonnage info', tonnage)
+      })
+      .catch(err => {
+        responses.errorResponse(err, 500, next)
+      })
+  }
 }
 
 module.exports = Tonnages
