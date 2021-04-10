@@ -9,6 +9,7 @@ const authRoutes = require('./routes/auth/auth')
 const productRoutes = require('./routes/preferences/product')
 const truckTypeRoutes = require('./routes/preferences/trucktype')
 const tonnageRoute = require('./routes/preferences/tonnage')
+const clientRoute = require('./routes/client/client')
 
 const PORT = process.env.PORT || 8080
 const CONNECTION_URI = `${process.env.CONNECTION_STRING}`
@@ -16,6 +17,7 @@ const BASE_URL = '/api/v2'
 const app = express()
 
 app.use('/public/images', express.static(path.join(__dirname, 'public/images')))
+app.use('/public/company-logo', express.static(path.join(__dirname, 'public/company-logo')))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use((req, res, next) => {
@@ -27,6 +29,7 @@ app.use((req, res, next) => {
 
 app.use(BASE_URL, authRoutes)
 app.use(BASE_URL, loadingSiteRoutes, productRoutes, truckTypeRoutes, tonnageRoute)
+app.use(BASE_URL, clientRoute)
 
 app.use((error, req, res, next) => {
     const status = error.statusCode || 500
