@@ -1,6 +1,9 @@
 const ClientModel = require('../../models/client')
 const multer = require('multer')
 const responses = require('../../utils/response')
+const { validationResult } = require('express-validator')
+const path = require('path')
+const fs = require('fs')
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -24,7 +27,7 @@ const fileFilter = (req, file, cb) => {
   }
 }
 
-const uploadLogo = multer({ storage: fileStorage, fileFilter: fileStorage }).single('logo')
+const uploadLogo = multer({ storage: fileStorage, fileFilter: fileFilter }).single('clientLogo')
 
 class clientController {
   static getClients(req, res, next) {
@@ -32,6 +35,7 @@ class clientController {
     const currentPage = req.currentPage || 1
     ClientModel
       .find({})
+      .populate('parentCompany', 'clientName -_id')
       .skip((currentPage - 1) * perPage)
       .limit(perPage)
       .select('-__v -updatedAt -createdAt')
@@ -44,6 +48,71 @@ class clientController {
       .catch(err => {
         responses.serverErrorResponse(err, 500, next)
       })
+  }
+
+  static addClient(req, res, next) {
+    const errors = validationResult(req)
+    if(!errors.isEmpty()) {
+      return responses.errorResponse(res, 422, 'validation failed', errors.mapped())
+    }
+    const hasParentCompany = JSON.parse(req.body.hasParentCompany)
+    const parentCompany = req.body.parentCompany
+    const clientName = req.body.clientName
+    const clientAlias = req.body.clientAlias
+    const contactInfo = req.body.contactInfo
+    const personOfContact = req.body.personOfContact
+    const expectedMargin = req.body.expectedMargin
+    const bankName = req.body.bankName
+    const accountNo = req.body.accountNo
+    const accountName = req.body.accountName
+    let companyLogoUrl = req.file
+    if(!req.file) {
+      return responses.errorResponse(res, 422, 'choose a logo')
+    }
+    companyLogoUrl = req.file.path
+   
+    ClientModel
+      .findOne({ clientName: clientName })
+      .then(doMatched => {
+        if(doMatched) {
+          return responses.errorResponse(res, 409, 'resource already exists')
+        }
+        const newClientInfo = new ClientModel({
+          hasParentCompany: hasParentCompany,
+          parentCompany: parentCompany,
+          clientName: clientName,
+          clientAlias: clientAlias,
+          clientLogo: companyLogoUrl,
+          contactInfo: contactInfo,
+          personOfContact: personOfContact,
+          expectedMargin: expectedMargin,
+          bankName: bankName,
+          accountNo: accountNo,
+          accountName: accountName,
+        })
+        return newClientInfo.save()
+        .then(client => {
+          responses.successResponse(res, 201, 'resource created', client)
+        })
+      }) 
+      .catch(err => {
+        responses.serverErrorResponse(err, 500, next)
+      })
+  }
+}
+
+
+const deleteClientImage = (imagePath) => {
+  const imageRootPath = path.join(__dirname, '..', '..')
+  const fullImagePath = imageRootPath+'/'+imagePath
+  if(fullImagePath) {
+    fs.unlink(fullImagePath, (err, data) => {
+      if(err) {
+        throw new Error('image resource does not exists.')
+      }
+      console.log('image deleted')
+    })
+
   }
 }
 

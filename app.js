@@ -19,7 +19,7 @@ const app = express()
 app.use('/public/images', express.static(path.join(__dirname, 'public/images')))
 app.use('/public/company-logo', express.static(path.join(__dirname, 'public/company-logo')))
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE')

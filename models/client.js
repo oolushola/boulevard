@@ -32,7 +32,7 @@ const clientSchema = new Schema({
       type: String,
       required: true
     },
-    streetName:{
+    streetName: {
       required: true,
       type: String
     }, 
@@ -43,6 +43,10 @@ const clientSchema = new Schema({
     state: {
       required: true,
       type: String
+    },
+    country: {
+      required: true,
+      type: String,
     }
   }],
   personOfContact: [{
@@ -86,6 +90,6 @@ const clientSchema = new Schema({
       ref: 'Product'
     }
   }]
-})
+}, { timestamps: true })
 
 module.exports = mongoose.model('Client', clientSchema)
