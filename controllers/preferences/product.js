@@ -1,5 +1,5 @@
-const ProductModel = require('../models/preferences/product')
-const responses = require('../utils/response')
+const ProductModel = require('../../models/preferences/product')
+const responses = require('../../utils/response')
 const { validationResult } = require('express-validator')
 const { response } = require('express')
 

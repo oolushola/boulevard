@@ -1,6 +1,6 @@
 const express = require('express')
 const { body } = require('express-validator')
-const loadingSiteController = require('../../controllers/loading-site')
+const loadingSiteController = require('../../controllers/preferences/loading-site')
 const LoadingSite = require('../../models/preferences/loadingsite')
 const verifyToken = require('../../utils/middleware/verifyToken')
 

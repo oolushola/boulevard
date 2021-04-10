@@ -2,7 +2,7 @@ const express = require('express')
 const { body } = require('express-validator')
 const verifyToken = require('../../utils/middleware/verifyToken')
 const userAccess = require('../../utils/middleware/user-access')
-const productController = require('../../controllers/product')
+const productController = require('../../controllers/preferences/product')
 
 const router = express.Router()
 

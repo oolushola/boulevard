@@ -3,7 +3,7 @@ const router = express.Router()
 const { body } = require('express-validator')
 const verifyToken = require('../../utils/middleware/verifyToken')
 const userAccess = require('../../utils/middleware/user-access')
-const tonnageController = require('../../controllers/tonnage')
+const tonnageController = require('../../controllers/preferences/tonnage')
 const TonnageModel = require('../../models/preferences/tonnage')
 const tonnage = require('../../models/preferences/tonnage')
 

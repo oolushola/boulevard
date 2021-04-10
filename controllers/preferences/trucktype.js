@@ -1,5 +1,5 @@
-const TruckTypeModel = require('../models/preferences/trucktype')
-const responses = require('../utils/response')
+const TruckTypeModel = require('../../models/preferences/trucktype')
+const responses = require('../../utils/response')
 const { validationResult } = require('express-validator')
 const { response } = require('express')
 
