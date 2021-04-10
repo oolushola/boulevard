@@ -1,6 +1,6 @@
-const LoadingSite = require('../models/preferences/loadingsite')
+const LoadingSite = require('../../models/preferences/loadingsite')
 const { validationResult } = require('express-validator')
-const responses = require('../utils/response')
+const responses = require('../../utils/response')
 const { response } = require('express')
 
 class LoadingSites {

@@ -1,5 +1,5 @@
-const TonnageModel = require('../models/preferences/tonnage')
-const responses = require('../utils/response')
+const TonnageModel = require('../../models/preferences/tonnage')
+const responses = require('../../utils/response')
 const { validationResult } = require('express-validator')
 class Tonnages {
   static getTonnages(req, res, next) {
