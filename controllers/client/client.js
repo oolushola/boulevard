@@ -99,20 +99,87 @@ class clientController {
         responses.serverErrorResponse(err, 500, next)
       })
   }
-}
 
+  static getClient(req, res, next) {
+    const clientId = req.params.clientId
+    ClientModel
+      .findById(clientId)
+      .populate('parentCompany', 'clientName -_id')
+      .select('-__v -createdAt -updatedAt')
+      .then(client => {
+        if(!client) {
+          return responses.errorResponse(res, 404, 'resource not found')
+        }
+        responses.successResponse(res, 200, 'resource details', client)
+      })
+      .catch(err => {
+        responses.serverErrorResponse(err, 500, next)
+      })
+  }
+
+  static updateClient(req, res, next) {
+    const clientId = req.params.clientId
+    const errors = validationResult(req)
+    if(!errors.isEmpty()) {
+      return responses.errorResponse(res, 422, 'validation failed')
+    }
+    const hasParentCompany = JSON.parse(req.body.hasParentCompany)
+    const parentCompany = req.body.parentCompany
+    const clientName = req.body.clientName
+    const clientAlias = req.body.clientAlias
+    const contactInfo = req.body.contactInfo
+    const personOfContact = req.body.personOfContact
+    const expectedMargin = req.body.expectedMargin
+    const bankName = req.body.bankName
+    const accountNo = req.body.accountNo
+    const accountName = req.body.accountName
+    let clientLogo = req.file
+    
+    ClientModel
+      .findById(clientId)
+      .then(client => {
+        if(!client) {
+          return responses.errorResponse(res, 409, 'record already exists')
+        }
+        if(req.file) {
+          deleteClientImage(client.clientLogo)
+          clientLogo = req.file.path
+        }
+        else {
+          clientLogo = client.clientLogo
+        }
+        client.hasParentCompany = hasParentCompany
+        client.parentCompany = parentCompany
+        client.clientName = clientName
+        client.clientAlias = clientAlias
+        client.clientLogo = clientLogo
+        client.contactInfo = contactInfo
+        client.personOfContact = personOfContact
+        client.expectedMargin = expectedMargin
+        client.bankName = bankName
+        client.accountNo = accountNo
+        client.accountName = accountName
+        return client.save()
+        .then(result => {
+          responses.successResponse(res, 200, 'resource updated', result)
+        })
+      })
+      .catch(err => {
+        responses.serverErrorResponse(err, 500, next)
+      })
+  }
+}
 
 const deleteClientImage = (imagePath) => {
   const imageRootPath = path.join(__dirname, '..', '..')
   const fullImagePath = imageRootPath+'/'+imagePath
   if(fullImagePath) {
-    fs.unlink(fullImagePath, (err, data) => {
+    return fs.unlink(fullImagePath, (err, data) => {
       if(err) {
         throw new Error('image resource does not exists.')
       }
       console.log('image deleted')
     })
-
   }
 }
 
