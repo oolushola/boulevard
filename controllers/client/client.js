@@ -4,6 +4,7 @@ const responses = require('../../utils/response')
 const { validationResult } = require('express-validator')
 const path = require('path')
 const fs = require('fs')
+const { Console } = require('console')
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -35,7 +36,7 @@ class clientController {
     const currentPage = req.currentPage || 1
     ClientModel
       .find({})
-      .populate('parentCompany', 'clientName -_id')
+      .populate('parentCompany products.items.productId', 'clientName productName -_id')
       .skip((currentPage - 1) * perPage)
       .limit(perPage)
       .select('-__v -updatedAt -createdAt')
@@ -168,6 +169,33 @@ class clientController {
         responses.serverErrorResponse(err, 500, next)
       })
   }
+
+  static addUserProduct(req, res, next) {
+    const clientId = req.params.clientId
+    const items = req.body.items
+    ClientModel
+      .findById(clientId)
+      .then(client => {
+        if(!client) {
+          return responses.errorResponse(res, 404, 'client resource not found')
+        }
+        const productListings = [...items]
+        const updatedProducts = productListings.map(product => {
+        let checkClientProduct = client.products.items.findIndex(clientProduct => 
+          clientProduct.productId.toString() === product.productId.toString())
+          if(checkClientProduct < 0) {
+            client.products.items.push({ productId: product.productId })
+          }
+        })    
+        return client.save()
+          .then(addedProducts => {
+            responses.successResponse(res, 200, 'product resource added to client', addedProducts)
+          })
+      })
+      .catch(err => {
+        responses.serverErrorResponse(err, 500, next)
+      })
+  }
 }
 
 const deleteClientImage = (imagePath) => {
@@ -182,6 +210,8 @@ const deleteClientImage = (imagePath) => {
     })
   }
 }
+
+
 
 module.exports = { 
   clientController,

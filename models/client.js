@@ -84,12 +84,14 @@ const clientSchema = new Schema({
       ref: 'LoadingSite'
     }
   }],
-  products: [{
-    productId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Product'
-    }
-  }]
+  products: {
+    items: [{
+      productId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Product'
+      }
+    }]
+  }
 }, { timestamps: true })
 
 module.exports = mongoose.model('Client', clientSchema)
