@@ -1,22 +1,23 @@
 const express = require('express')
 const router  = express.Router()
-const userAcess = require('../../utils/middleware/user-access')
+const userAccess = require('../../utils/middleware/user-access')
 const verifyToken = require('../../utils/middleware/verifyToken')
 const { clientController, uploadLogo } = require('../../controllers/client/client')
 const { body } = require('express-validator')
 const ClientModel = require('../../models/client')
+const client = require('../../models/client')
 
 router.get(
   '/clients',
   verifyToken,
-  userAcess.admin,
+  userAccess.admin,
   clientController.getClients
 )
 
 router.post(
   '/client',
   verifyToken,
-  userAcess.admin,
+  userAccess.admin,
   // [
   //   body('hasParentCompany').isBoolean(),
   //   body('parentCompany')
@@ -50,14 +51,14 @@ router.post(
 router.get(
   '/client/:clientId',
   verifyToken,
-  userAcess.admin,
+  userAccess.admin,
   clientController.getClient
 )
 
 router.put(
   '/client/:clientId',
   verifyToken,
-  userAcess.admin,
+  userAccess.admin,
   [
     body('hasParentCompany').isBoolean(),
     body('parentCompany')
@@ -100,8 +101,29 @@ router.put(
 router.patch(
   '/client/:clientId/product',
   verifyToken,
-  userAcess.admin,
-  clientController.addUserProduct
+  userAccess.admin,
+  clientController.addClientProduct
+)
+
+router.delete(
+  '/client/:clientId/product',
+  verifyToken,
+  userAccess.superAdminAccess,
+  clientController.removeClientProduct
+)
+
+router.patch(
+  '/client/:clientId/loading-site',
+  verifyToken,
+  userAccess.admin,
+  clientController.assignLoadingSite
+)
+
+router.delete(
+  '/client/:clientId/loading-site',
+  verifyToken,
+  userAccess.admin,
+  clientController.removeLoadingSite
 )
 
 module.exports = router

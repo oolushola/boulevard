@@ -1,11 +1,12 @@
+const { response } = require('express');
 const jwt = require('jsonwebtoken')
 
 const verifyToken = (req, res, next) => {
     const token = req.headers.authorization
     if(!token) {
-        const error = new Error('No token found')
-        error.statusCode = 400
-        throw error
+        return response.status(400).json({
+            errorMessage: 'authentication failed: missing token'
+        })
     }
     let verifiedToken;
     try {
