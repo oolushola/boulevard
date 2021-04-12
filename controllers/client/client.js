@@ -4,6 +4,7 @@ const responses = require('../../utils/response')
 const { validationResult } = require('express-validator')
 const path = require('path')
 const fs = require('fs')
+const { Console } = require('console')
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -35,7 +36,10 @@ class clientController {
     const currentPage = req.currentPage || 1
     ClientModel
       .find({})
-      .populate('parentCompany', 'clientName -_id')
+      .populate(
+        'parentCompany products.items.productId loadingSites.loadingSiteId', 
+        'clientName productName loadingSite -_id'
+      )
       .skip((currentPage - 1) * perPage)
       .limit(perPage)
       .select('-__v -updatedAt -createdAt')
@@ -43,7 +47,7 @@ class clientController {
         if(clients.length <= 0) {
           return responses.successResponse(res, 200, 'no client resource yet', [])
         }
-        return responses.successResponse(res, 200, 'no client resource yet', clients)
+        return responses.successResponse(res, 200, 'client resource', clients)
       })
       .catch(err => {
         responses.serverErrorResponse(err, 500, next)
@@ -168,6 +172,124 @@ class clientController {
         responses.serverErrorResponse(err, 500, next)
       })
   }
+
+  static addClientProduct(req, res, next) {
+    const clientId = req.params.clientId
+    const items = req.body.items
+    ClientModel
+      .findById(clientId)
+      .then(client => {
+        if(!client) {
+          return responses.errorResponse(res, 404, 'client resource not found')
+        }
+        const productListings = [...items]
+        const updatedProducts = productListings.map(product => {
+        let checkClientProduct = client.products.items.findIndex(clientProduct => 
+          clientProduct.productId.toString() === product.productId.toString())
+          if(checkClientProduct < 0) {
+            client.products.items.push({ productId: product.productId })
+          }
+        })    
+        return client.save()
+          .then(addedProducts => {
+            responses.successResponse(res, 200, 'product resource added to client', addedProducts)
+          })
+      })
+      .catch(err => {
+        responses.serverErrorResponse(err, 500, next)
+      })
+  }
+
+  static removeClientProduct(req, res, next) {
+    const clientId = req.params.clientId
+    const items = req.body.items
+    ClientModel
+      .findById(clientId)
+      .then(client => {
+        if(!client) {
+          return responses.errorResponse(res, 404, 'client resource not found')
+        }
+        const productListings = [...items]
+        const clientProducts = [...client.products.items]
+        productListings.map(({ productId }) => {
+          let productIndex = clientProducts.findIndex(product => 
+            product.productId.toString() === productId.toString() 
+          )
+          if(productIndex >= 0) {
+            client.products.items.splice(productIndex, 1)
+          }
+        })
+        return client.save()
+        .then(result => {
+          responses.successResponse(res, 200, 'client product resource deleted', result)
+        })
+      })
+      .catch(err => {
+        responses.serverErrorResponse(err, 500, next)
+      })
+  } 
+
+  static assignLoadingSite(req, res, next) {
+    const clientId = req.params.clientId
+    const loadingSites = req.body.loadingSites
+    const errors = validationResult(req)
+    if(!errors.isEmpty()) {
+      return responses.errorResponse(res, 404, 'validation failed', errors.mapped())
+    }
+    ClientModel
+      .findById(clientId)
+      .select('-__v -updatedAt -createdAt')
+      .then(client => {
+        if(!client) {
+          return responses.errorResponse(res, 404, 'resource not found')
+        }
+        loadingSites.map(({ loadingSiteId }) => {
+          const checkLoadingSite = client.loadingSites.findIndex(loadingSite => 
+            loadingSite.loadingSiteId.toString() === loadingSiteId.toString()
+          )
+          if(checkLoadingSite < 0) {
+            client.loadingSites.push({ loadingSiteId: loadingSiteId})
+          }
+        })
+        assignment(loadingSites, client.loadingSites, )
+        return client.save()
+          .then(result => {
+            responses.successResponse(res, 200, 'loading site resource updated', result)
+          })
+      })
+      .catch(err => {
+        responses.serverErrorResponse(err, 500, next)
+      })
+  }
+
+  static removeLoadingSite(req, res, next) {
+    const clientId = req.params.clientId
+    const loadingSites = req.body.loadingSites
+    ClientModel
+      .findById(clientId)
+      .then(client => {
+        if(!client) {
+          return responses.errorResponse(res, 404, 'client resource not found')
+        }
+        const loadingSiteListings = [...loadingSites]
+        const clientLoadingSites = [...client.loadingSites]
+        loadingSiteListings.map(({ loadingSiteId }) => {
+          let loadingSiteIndex = clientLoadingSites.findIndex(loadingSite => 
+            loadingSite.loadingSiteId.toString() === loadingSiteId.toString() 
+          )
+          if(loadingSiteIndex >= 0) {
+            client.loadingSites.splice(loadingSiteIndex, 1)
+          }
+        })
+        return client.save()
+        .then(result => {
+          responses.successResponse(res, 200, 'client loading site resource deleted', result)
+        })
+      })
+      .catch(err => {
+        responses.serverErrorResponse(err, 500, next)
+      })
+  }
 }
 
 const deleteClientImage = (imagePath) => {
@@ -182,6 +304,8 @@ const deleteClientImage = (imagePath) => {
     })
   }
 }
+
+
 
 module.exports = { 
   clientController,

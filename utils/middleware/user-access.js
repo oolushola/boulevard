@@ -6,7 +6,7 @@ class Priviledges {
         userModel.findById(userId)
             .then(user => {
                 if(user.userRole !== 'Super Admin') {
-                    const error = new Error('Access denied. You do not have permission to change user role')
+                    const error = new Error('Access denied')
                     error.statusCode = 403
                     next(error)
                 }
