@@ -56,7 +56,23 @@ class Driver {
         responses.serverErrorResponse(err, 500, next)
       })
   }
-  
+
+  static getDriver(req, res, next) {
+    const driverId = req.params.driverId
+    DriverModel
+      .findById(driverId)
+      .select('-createdAt -updatedAt -__v')
+      .then(driver => {
+        if(!driver) {
+          return responses.errorResponse(res, 404, 'driver resource not found')
+        }
+        responses.successResponse(res, 200, 'driver resource', driver)
+      })
+      .catch(err => {
+        responses.serverErrorResponse(err, 500, next)
+      })
+  }
+
 }
 
 module.exports = Driver
