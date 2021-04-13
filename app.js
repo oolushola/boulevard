@@ -3,13 +3,7 @@ const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const dotenv = require('dotenv').config()
 const path = require('path')
-
-const loadingSiteRoutes = require('./routes/preferences/loadingsite')
-const authRoutes = require('./routes/auth/auth')
-const productRoutes = require('./routes/preferences/product')
-const truckTypeRoutes = require('./routes/preferences/trucktype')
-const tonnageRoute = require('./routes/preferences/tonnage')
-const clientRoute = require('./routes/client/client')
+const routes = require('./routes/routes')
 
 const PORT = process.env.PORT || 8080
 const CONNECTION_URI = `${process.env.CONNECTION_STRING}`
@@ -18,8 +12,10 @@ const app = express()
 
 app.use('/public/images', express.static(path.join(__dirname, 'public/images')))
 app.use('/public/company-logo', express.static(path.join(__dirname, 'public/company-logo')))
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE')
@@ -27,9 +23,7 @@ app.use((req, res, next) => {
     next()
 })
 
-app.use(BASE_URL, authRoutes)
-app.use(BASE_URL, loadingSiteRoutes, productRoutes, truckTypeRoutes, tonnageRoute)
-app.use(BASE_URL, clientRoute)
+app.use(BASE_URL, routes)
 
 app.use((error, req, res, next) => {
     const status = error.statusCode || 500
