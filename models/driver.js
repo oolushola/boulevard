@@ -25,8 +25,12 @@ const driverSchema = new Schema({
     },
     phoneNo: []
   },
-  documents: []
+  documents: [],
+  status: {
+    type: Boolean,
+    default: true
+  }
   
-})
+}, { timestamps: true })
 
 module.exports = mongoose.model('Driver', driverSchema)

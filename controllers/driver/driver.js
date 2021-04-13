@@ -73,6 +73,40 @@ class Driver {
       })
   }
 
+  static updateDriver(req, res, next) {
+    const driverId = req.params.driverId
+    const errors = validationResult(req)
+    if(!errors.isEmpty()) {
+      return responses.errorResponse(res, 422, 'validation failed', errors.mapped())
+    }
+    const licenceNo = req.body.licenceNo
+    const driver = req.body.driver
+    const motorBoy = req.body.motorBoy
+    const documents = req.body.documents
+    DriverModel
+      .findById(driverId)
+      .then(driverResult => {
+        if(!driverResult) {
+          return responses.errorResponse(res, 404, 'resource not found')
+        }        
+        driverResult.licenceNo = licenceNo
+        driverResult.driver.firstName = driver.firstName
+        driverResult.driver.lastName = driver.lastName
+        driverResult.driver.phoneNo = driver.phoneNo
+        driverResult.motorBoy.firstName = motorBoy.firstName
+        driverResult.motorBoy.lastName = motorBoy.lastName
+        driverResult.motorBoy.phoneNo = motorBoy.phoneNo
+        driverResult.documents = documents
+        return driverResult.save()
+          .then(result => {
+              responses.successResponse(res, 200, 'resource updated', result)
+          })
+      })
+      .catch(err => {
+        responses.serverErrorResponse(err, 500, next)
+      })
+  }
+
 }
 
 module.exports = Driver
