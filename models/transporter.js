@@ -7,7 +7,11 @@ const TransporterSchema = new Schema({
     required: true,
     ref: 'User'
   },
-  name: {
+  firstName: {
+    required: true,
+    type: String
+  },
+  lastName: {
     required: true,
     type: String
   },
@@ -61,7 +65,6 @@ const TransporterSchema = new Schema({
   },
   nextOfKin: {
     fullName: {
-      required: true,
       type: String
     },
     phoneNo: {
@@ -72,14 +75,25 @@ const TransporterSchema = new Schema({
     },
     address: {
       type: String,
-      required: true
     }
+  },
+  username: {
+    type: String,
+    required: true
+  },
+  password: {
+    type: String,
+    required: true
   },
   moves: {
     default: 0,
     type: Number
   },
-  documents: []
+  documents: [],
+  status: {
+    type: Boolean,
+    default:true
+  }
 
 }, { timestamps: true })
 
