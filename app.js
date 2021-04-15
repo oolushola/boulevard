@@ -12,6 +12,7 @@ const app = express()
 
 app.use('/public/images', express.static(path.join(__dirname, 'public/images')))
 app.use('/public/company-logo', express.static(path.join(__dirname, 'public/company-logo')))
+app.use('/public/transporter/documents', express.static(path.join(__dirname, 'public/transporter/documents')))
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
