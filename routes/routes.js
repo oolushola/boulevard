@@ -6,7 +6,8 @@ const truckTypeRoutes = require('./preferences/trucktype')
 const tonnageRoute = require('./preferences/tonnage')
 const clientRoute = require('./client/client')
 const driverRoute = require('./driver/driver')
-const transporterRouter = require('../routes/transporter/transporter')
+const transporterRoute = require('../routes/transporter/transporter')
+const truckRoute = require('../routes/truck/truck')
 
 const router = express.Router()
 
@@ -18,7 +19,8 @@ router.use(
   tonnageRoute,
   clientRoute,
   driverRoute,
-  transporterRouter
+  transporterRoute,
+  truckRoute
 )
 
 module.exports = router 
