@@ -124,7 +124,7 @@ class User {
                             userType: userDoc.userRole
                         }, 
                         process.env.TOKEN_SECRET, 
-                        { expiresIn: 86400000 })
+                        { expiresIn: 86400 })
                         const data = {
                             firstName: userDoc.firstName, 
                             lastName: userDoc.lastName, 
